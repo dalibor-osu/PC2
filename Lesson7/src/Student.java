@@ -1,5 +1,9 @@
 
 public class Student {
+	private String jmeno;
+	private int rocnik;
+	private float studijniPrumer;
+
 	public Student(String jmeno, int rocnik)
 	{
 		this.jmeno=jmeno;
@@ -27,8 +31,4 @@ public class Student {
 		if (studijniPrumer < 1 || studijniPrumer > 5) throw new StudentException("Studijni prumer musi byt v rozsahu 1 - 5");
 		this.studijniPrumer = studijniPrumer;
 	}
-
-	private String jmeno;
-	private int rocnik;
-	private float studijniPrumer;
 }

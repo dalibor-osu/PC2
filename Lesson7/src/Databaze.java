@@ -1,31 +1,55 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Databaze {
-	public Databaze(int pocetPrvku)
+	private Scanner sc;
+	private HashMap<String, Student> prvkyDatabaze;
+
+	public Databaze()
 	{
-		prvkyDatabaze = new Student[pocetPrvku];
+		prvkyDatabaze = new HashMap<>();
 		sc = new Scanner(System.in);
 	}
 
-	public void setStudent() throws IndexOutOfBoundsException // Zde je výjimka vyvolána automaticky, takže metoda neobsahuje throw
+	public void setStudent()
 	{
 		System.out.println("Zadejte jmeno studenta, rok narozeni");
 		String jmeno = sc.next();
 		int rok = Test.pouzeCelaCisla(sc); // Použití metody pouzeCelaCisla() z třídy Test
-		prvkyDatabaze[posledniStudent++] = new Student(jmeno,rok);
+		prvkyDatabaze.put(jmeno, new Student(jmeno,rok));
 	}
 	
-	public Student getStudent(int idx) throws IndexOutOfBoundsException // Zde je výjimka vyvolána automaticky, takže metoda neobsahuje throw
+	public boolean getStudent(String jmeno, Student[] student)
 	{
-		return prvkyDatabaze[idx];
+		if (!prvkyDatabaze.containsKey(jmeno))
+			return false; // Vrátí false pokud student neexistuje
+
+		student[0] = prvkyDatabaze.get(jmeno); // Nastaví hodnotu prvního (a jediného) prvku v poli na zvoleného studenta
+		return true;
 	}
 	
-	public void setPrumer(int idx, float prumer) throws IndexOutOfBoundsException, StudentException // Zde jsou výjimky vyvolány automaticky, takže metoda neobsahuje throw
+	public boolean setPrumer(String jmeno, float prumer) throws StudentException // Zde jsou výjimky vyvolány automaticky, takže metoda neobsahuje throw
 	{
-		prvkyDatabaze[idx].setStudijniPrumer(prumer);
+		if (!prvkyDatabaze.containsKey(jmeno))
+			return false; // Vrátí false pokud student neexistuje
+
+		prvkyDatabaze.get(jmeno).setStudijniPrumer(prumer);
+		return true;
 	}
-	
-	private Scanner sc;
-	private Student [] prvkyDatabaze;
-	private int posledniStudent;
+
+	public void vypisStudenty() {
+		System.out.println("Jmena Studentu:");
+		for (String jmeno : prvkyDatabaze.keySet()) { // Vypíše klíč pro každého uloženého studenta => jméno
+			System.out.println("\t" + jmeno);
+		}
+	}
+
+	public boolean odstranStudenta(String jmeno) {
+		if (!prvkyDatabaze.containsKey(jmeno))
+			return false; // Vrátí false pokud student neexistuje
+
+		prvkyDatabaze.remove(jmeno); // Odstraní prvek se zadaným klíčem (jménem)
+		return true;
+	}
 }
