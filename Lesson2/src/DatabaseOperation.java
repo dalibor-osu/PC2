@@ -6,6 +6,8 @@ public class DatabaseOperation {
 
         Scanner sc = new Scanner(System.in);
 
+        new Scanner(System.in);
+
         for (int i = 0; i < 3; i++)
         {
             System.out.println("Zadejte jmeno " + (i + 1) + ". zamestnance: ");
