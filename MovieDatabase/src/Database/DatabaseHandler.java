@@ -57,7 +57,7 @@ public class DatabaseHandler {
                 Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection("jdbc:sqlite:db/movie.db");
             } catch (SQLException | ClassNotFoundException e) {
-                e.printStackTrace(); // log it
+                e.printStackTrace();
             }
         }
     }
@@ -93,9 +93,9 @@ public class DatabaseHandler {
             statement.executeUpdate("drop table Movie");
             statement.executeUpdate("drop table Person");
             statement.executeUpdate("drop table Rating");
-            statement.executeUpdate("drop table staff");
+            statement.executeUpdate("drop table Staff");
         } catch (Exception e) {
-            e.printStackTrace(); // log it
+            e.printStackTrace();
         }
     }
 

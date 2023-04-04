@@ -1,9 +1,11 @@
 import Database.DatabaseHandler;
+import UserControl.UserControl;
 
 import java.sql.Statement;
 
 public class Main {
     public static void main(String[] args) {
-        DatabaseHandler database = new DatabaseHandler();
+        UserControl userControl = new UserControl();
+        userControl.Menu();
     }
 }
