@@ -54,11 +54,10 @@ public class UserControl {
                 break;
 
             case 5:
-                System.out.println("Searching a movie");
+                searchMovie();
                 break;
 
             case 6:
-                System.out.println("Printing all movies");
                 data.printAllMovies();
                 break;
 
@@ -90,6 +89,18 @@ public class UserControl {
         if (!end) { Menu(); }
     }
 
+    private void searchMovie() {
+        System.out.println("Enter name of a movie to search:");
+        String title = input.getStringFromUserInput();
+        Movie movie = data.getMovieByTitle(title);
+
+        if (movie == null) {
+            System.out.println("This movie doesn't exist");
+        } else {
+            System.out.println(movie);
+        }
+    }
+
     private void deleteMovie() {
         System.out.println("Enter name of a movie to delete:");
         String title = input.getStringFromUserInput();
@@ -97,7 +108,7 @@ public class UserControl {
         if (data.removeMovie(title)) {
             System.out.println("Movie was successfully deleted");
         } else {
-            System.out.println("This movie doesn't exist. Please try again... " + title);
+            System.out.println("This movie doesn't exist. Please try again...");
         }
     }
 
@@ -130,9 +141,11 @@ public class UserControl {
             movie = new FeatureMovie(title, director, year);
         }
 
-        data.addMovie(movie);
-
-        System.out.println("Added movie: ");
-        System.out.println(movie);
+        if (data.addMovie(movie)) {
+            System.out.println("Added movie: ");
+            System.out.println(movie);
+        } else {
+            System.out.println("Movie with this title already exists. Please try again...");
+        }
     }
 }

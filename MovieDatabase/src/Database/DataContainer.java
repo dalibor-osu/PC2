@@ -22,9 +22,14 @@ public class DataContainer {
         staff = databaseHandler.getStaffList();
     }
 
-    public void addMovie(Movie movie) {
+    public boolean addMovie(Movie movie) {
+        if (movies.contains(getMovieByTitle(movie.getName()))) {
+            return false;
+        }
+
         movie.setId(generateID());
         movies.add(movie);
+        return true;
     }
 
     public void editMovie(String movieTitle, Movie newMovie) {
@@ -45,7 +50,7 @@ public class DataContainer {
     }
 
     public boolean removeMovie(String movieName) {
-        return movies.remove(movies.stream().filter(movie -> movie.getName().equals(movieName)).findAny().orElse(null));
+        return movies.remove(getMovieByTitle(movieName));
     }
 
     public void printAllMovies() {
@@ -56,12 +61,12 @@ public class DataContainer {
     }
 
     private String generateID() {
-        String characters = "abcdefghijklmnopqrstuvwxyz123456789";
+        char[] characters = "abcdefghijklmnopqrstuvwxyz123456789".toCharArray();
         Random random = new Random();
         StringBuilder ID = new StringBuilder();
 
         for (int i = 0; i < 36; i++) {
-            ID.append(characters.toCharArray()[random.nextInt(35)]);
+            ID.append(characters[random.nextInt(35)]);
         }
 
         return getMovieById(ID.toString()) == null ? ID.toString() : generateID();
