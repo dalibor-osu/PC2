@@ -5,8 +5,6 @@ import Movie.AnimatedMovie;
 import Movie.FeatureMovie;
 import Movie.Movie;
 
-import java.util.Scanner;
-
 public class UserControl {
     private InputParser input;
     private DataContainer data;
