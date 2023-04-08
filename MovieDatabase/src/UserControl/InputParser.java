@@ -21,7 +21,7 @@ public class InputParser {
 
     public String getStringFromUserInput() {
         try {
-            return scanner.nextLine();
+            return scanner.next();
         } catch (Exception e) {
             System.out.println(e.toString());
             System.out.println("Something went wrong. Please try again...");

@@ -1,4 +1,7 @@
 package Movie;
 
-public class FeatureMovie {
+public class FeatureMovie extends Movie {
+    public FeatureMovie(String title, String director, int year) {
+        super(title, director, year);
+    }
 }

@@ -1,10 +1,18 @@
 package UserControl;
 
+import Database.DataContainer;
+import Movie.AnimatedMovie;
+import Movie.FeatureMovie;
+import Movie.Movie;
+
 import java.util.Scanner;
 
 public class UserControl {
     private InputParser input;
+    private DataContainer data;
+    private boolean end = false;
     public UserControl() {
+        data = new DataContainer();
         input = new InputParser();
     }
     public void Menu() {
@@ -29,36 +37,85 @@ public class UserControl {
 
     private void handleMenuSelection(int selection) {
         switch (selection) {
-            case 1 -> System.out.println("Adding a new movie");
-            case 2 -> System.out.println("Editing a movie");
-            case 3 -> System.out.println("Deleting a movie movie");
-            case 4 -> System.out.println("Adding a movie rating");
-            case 5 -> System.out.println("Searching a movie");
-            case 6 -> System.out.println("Printing all movies");
-            case 7 -> System.out.println("Printing staff members");
-            case 8 -> System.out.println("Printing movies with staff member");
-            case 9 -> System.out.println("Saving movie to file");
-            case 10 -> System.out.println("Loading movie from file");
-            case 11 -> System.out.println("Exiting program");
-            default -> {
+            case 1:
+                addMovie();
+                break;
+
+            case 2:
+                System.out.println("Editing a movie");
+                break;
+
+            case 3:
+                System.out.println("Deleting a movie movie");
+                break;
+
+            case 4:
+                System.out.println("Adding a movie rating");
+                break;
+
+            case 5:
+                System.out.println("Searching a movie");
+                break;
+
+            case 6:
+                System.out.println("Printing all movies");
+                break;
+
+            case 7:
+                System.out.println("Printing staff members");
+                break;
+
+            case 8:
+                System.out.println("Printing movies with staff member");
+                break;
+
+            case 9:
+                System.out.println("Saving movie to file");
+                break;
+
+            case 10:
+                System.out.println("Loading movie from file");
+                break;
+
+            case 11:
+                System.out.println("Exiting program");
+                end = true;
+                break;
+
+            default:
                 System.out.println("Unknown command. Please try again...");
-                Menu();
-            }
+                break;
         }
+
+        if (!end) { Menu(); }
     }
 
-    private void clearConsole() {
-        try
-        {
-            final String os = System.getProperty("os.name");
-            if (os.contains("Windows"))
-            {
-                Runtime.getRuntime().exec("cls");
-            }
+    private void addMovie() {
+        String title, director;
+        int year, age;
+        Movie movie;
+
+        System.out.println("Enter movie title:");
+        title = input.getStringFromUserInput();
+
+        System.out.println("Enter movie director:");
+        director = input.getStringFromUserInput();
+
+        System.out.println("Enter movie release year:");
+        year = input.getIntFromUserInput();
+
+        System.out.println("Is this movie animated? ([Y]es/[N]o):");
+        if (input.getStringFromUserInput().equals("Y")) {
+            System.out.println("Enter recommended age:");
+            age = input.getIntFromUserInput();
+            movie = new AnimatedMovie(title, director, year, age);
+        } else {
+            movie = new FeatureMovie(title, director, year);
         }
-        catch (final Exception e)
-        {
-            e.printStackTrace();
-        }
+
+        data.addMovie(movie);
+
+        System.out.println("Added movie: ");
+        System.out.println(movie);
     }
 }
