@@ -2,6 +2,7 @@ package Database;
 
 import Movie.*;
 
+import javax.imageio.plugins.jpeg.JPEGImageReadParam;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,21 @@ public class DataContainer {
 
     public Movie getMovieById(String movieId) {
         return movies.stream().filter(movie -> movie.getId().equals(movieId)).findAny().orElse(null);
+    }
+
+    public void saveDatabase() {
+        databaseHandler.saveDatabase(movies, people, staff, userRatings);
+    }
+
+    public boolean removeMovie(String movieName) {
+        return movies.remove(movies.stream().filter(movie -> movie.getName().equals(movieName)).findAny().orElse(null));
+    }
+
+    public void printAllMovies() {
+        for (Movie movie : movies) {
+            System.out.println("------------------------------------");
+            System.out.println(movie);
+        }
     }
 
     private String generateID() {

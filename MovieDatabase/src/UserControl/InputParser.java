@@ -10,7 +10,9 @@ public class InputParser {
 
     public int getIntFromUserInput() {
         try {
-            return scanner.nextInt();
+            int i = scanner.nextInt();
+            scanner.nextLine();
+            return i;
         } catch (Exception e) {
             System.out.println(e.toString());
             System.out.println("Your input was not a valid integer. Please try again...");
@@ -21,7 +23,7 @@ public class InputParser {
 
     public String getStringFromUserInput() {
         try {
-            return scanner.next();
+            return scanner.nextLine();
         } catch (Exception e) {
             System.out.println(e.toString());
             System.out.println("Something went wrong. Please try again...");

@@ -60,14 +60,13 @@ public class DatabaseHandler {
     }
 
     private void createTables() {
-        dropTables();
+        //dropTables();
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(createMovieTableQuery);
             statement.executeUpdate(createPersonTableQuery);
             statement.executeUpdate(createStaffTableQuery);
             statement.executeUpdate(createRatingTableQuery);
-            insertSampleValues();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,14 +197,17 @@ public class DatabaseHandler {
     }
 
     public void saveDatabase(List<Movie> movies, List<Person> people, List<MovieStaff> staff, List<UserRating> ratings) {
-
+        dropTables();
+        createTables();
+        saveMovies(movies);
     }
 
     private void saveMovies(List<Movie> movies) {
         for (Movie movie : movies) {
             try {
                 boolean isAnimated = movie instanceof AnimatedMovie;
-                String query = "INSERT INTO Movie VALUES(?, ?, ?, ?" + (isAnimated ? ", ?)" : ")");
+                String query = !isAnimated ? "INSERT INTO Movie(ID, Title, Director, Year) VALUES(?, ?, ?, ?)"
+                                          : "INSERT INTO Movie(ID, Title, Director, Year, Age) VALUES(?, ?, ?, ?, ?)";
                 PreparedStatement statement = connection.prepareStatement(query);
 
                 statement.setString(1, movie.getId());

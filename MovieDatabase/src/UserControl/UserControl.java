@@ -46,7 +46,7 @@ public class UserControl {
                 break;
 
             case 3:
-                System.out.println("Deleting a movie movie");
+                deleteMovie();
                 break;
 
             case 4:
@@ -59,6 +59,7 @@ public class UserControl {
 
             case 6:
                 System.out.println("Printing all movies");
+                data.printAllMovies();
                 break;
 
             case 7:
@@ -78,8 +79,7 @@ public class UserControl {
                 break;
 
             case 11:
-                System.out.println("Exiting program");
-                end = true;
+                exit();
                 break;
 
             default:
@@ -88,6 +88,23 @@ public class UserControl {
         }
 
         if (!end) { Menu(); }
+    }
+
+    private void deleteMovie() {
+        System.out.println("Enter name of a movie to delete:");
+        String title = input.getStringFromUserInput();
+
+        if (data.removeMovie(title)) {
+            System.out.println("Movie was successfully deleted");
+        } else {
+            System.out.println("This movie doesn't exist. Please try again... " + title);
+        }
+    }
+
+    private void exit() {
+        System.out.println("Exiting program");
+        end = true;
+        data.saveDatabase();
     }
 
     private void addMovie() {
