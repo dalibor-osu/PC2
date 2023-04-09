@@ -1,4 +1,6 @@
-package Movie;
+package Movie.Rating;
+
+import Movie.MovieException;
 
 public class FeatureMovieRating extends UserRating {
     private final int min = 1;

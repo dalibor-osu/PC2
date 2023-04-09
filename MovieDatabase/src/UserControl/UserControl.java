@@ -1,9 +1,11 @@
 package UserControl;
 
 import Database.DataContainer;
-import Movie.AnimatedMovie;
-import Movie.FeatureMovie;
-import Movie.Movie;
+import Movie.*;
+
+import java.util.List;
+
+import static java.lang.System.*;
 
 public class UserControl {
     private InputParser input;
@@ -14,23 +16,8 @@ public class UserControl {
         input = new InputParser();
     }
     public void Menu() {
-        printMenu();
+        MenuPrinter.printMainMenu();
         handleMenuSelection(input.getIntFromUserInput());
-    }
-
-    private void printMenu() {
-        System.out.println("Choose action from menu:");
-        System.out.println("\t1 ... Add new movie");
-        System.out.println("\t2 ... Edit movie");
-        System.out.println("\t3 ... Delete movie");
-        System.out.println("\t4 ... Add movie rating");
-        System.out.println("\t5 ... Search movie");
-        System.out.println("\t6 ... Print all movies");
-        System.out.println("\t7 ... Print staff members who worked on more than 1 movie");
-        System.out.println("\t8 ... Print movies with certain staff member");
-        System.out.println("\t9 ... Save movie info to file");
-        System.out.println("\t10... Load movie from file");
-        System.out.println("\t11... Exit program");
     }
 
     private void handleMenuSelection(int selection) {
@@ -40,7 +27,7 @@ public class UserControl {
                 break;
 
             case 2:
-                System.out.println("Editing a movie");
+                editMovie();
                 break;
 
             case 3:
@@ -48,7 +35,7 @@ public class UserControl {
                 break;
 
             case 4:
-                System.out.println("Adding a movie rating");
+                out.println("Adding a movie rating");
                 break;
 
             case 5:
@@ -56,23 +43,23 @@ public class UserControl {
                 break;
 
             case 6:
-                data.printAllMovies();
+                data.printMovies();
                 break;
 
             case 7:
-                System.out.println("Printing staff members");
+                data.printStaffMembersWithMovies();
                 break;
 
             case 8:
-                System.out.println("Printing movies with staff member");
+                printMoviesWithPerson();
                 break;
 
             case 9:
-                System.out.println("Saving movie to file");
+                out.println("Saving movie to file");
                 break;
 
             case 10:
-                System.out.println("Loading movie from file");
+                out.println("Loading movie from file");
                 break;
 
             case 11:
@@ -80,40 +67,176 @@ public class UserControl {
                 break;
 
             default:
-                System.out.println("Unknown command. Please try again...");
+                out.println("Unknown command. Please try again...");
                 break;
         }
 
         if (!end) { Menu(); }
     }
 
+    private void printMoviesWithPerson() {
+        Person person = getPersonFromUser();
+        data.printMoviesWithPerson(person);
+    }
+
+    private void editMovie() {
+        String movieName;
+        Movie movie;
+
+        out.println("Enter the name of a movie to edit:");
+        movieName = input.getStringFromUserInput();
+        movie = data.getMovieByTitle(movieName);
+
+        if (movie == null) {
+            out.println("This movie doesn't exists");
+            return;
+        }
+
+        editMenu(movie);
+    }
+
+    private void editMenu(Movie movie) {
+        MenuPrinter.printEditMenu();
+        if(movie.isAnimated()) out.println("\t5 ... Recommended age");
+        handleEditSelection(movie);
+    }
+
+    private void handleEditSelection(Movie movie) {
+        switch (input.getIntFromUserInput()) {
+            case 1:
+                editMovieTitle(movie);
+                break;
+
+            case 2:
+                editMovieDirector(movie);
+                break;
+
+            case 3:
+                editMovieYear(movie);
+                break;
+
+            case 4:
+                editMovieStaff(movie);
+                break;
+
+            case 5:
+                if (movie.isAnimated()) {
+                    editMovieAge(movie);
+                    break;
+                }
+
+            default:
+                out.println("Unknown option. Please try again...");
+                editMenu(movie);
+                break;
+        }
+    }
+
+    private void editMovieTitle(Movie movie) {
+        out.println("Enter new title:");
+        movie.setTitle(input.getStringFromUserInput());
+        out.println("Title was successfully changed");
+    }
+
+    private void editMovieDirector(Movie movie) {
+        out.println("Enter new director:");
+        movie.setDirector(input.getStringFromUserInput());
+        out.println("Director was successfully changed");
+    }
+
+    private void editMovieYear(Movie movie) {
+        out.println("Enter new year:");
+        movie.setYear(input.getIntFromUserInput());
+        out.println("Year was successfully changed");
+    }
+
+    private void editMovieAge(Movie movie) {
+        out.println("Enter new recommended age:");
+        ((AnimatedMovie)movie).setAge(input.getIntFromUserInput());
+        out.println("Recommended age was successfully changed");
+    }
+
+    private void editMovieStaff(Movie movie) {
+        out.println("Current movie staff:");
+        data.printMovieStaff(movie);
+        handleStaffSelection(movie.getStaff());
+    }
+
+    private void handleStaffSelection(List<Person> staff) {
+        MenuPrinter.printStaffMenu();
+        switch (input.getIntFromUserInput()) {
+            case 1:
+                addStaffMember(staff);
+                break;
+
+            case 2:
+                removeStaffMember(staff);
+                break;
+
+            default:
+                out.println("Unknown option. Please try again...");
+                handleStaffSelection(staff);
+                break;
+        }
+    }
+
+    private void addStaffMember(List<Person> staff) {
+        Person person = getPersonFromUser();
+
+        if (data.addStaffMember(staff, person)){
+            out.println("Staff member was successfully added");
+        } else {
+            out.println("This person is already a staff person");
+        }
+    }
+
+    private void removeStaffMember(List<Person> staff) {
+        Person person = getPersonFromUser();
+
+        if (staff.remove(data.findPersonInStaffList(staff, person))) {
+            out.println("Staff member was successfully deleted");
+        } else {
+            out.println("This person doesn't exist. Please try again...");
+            removeStaffMember(staff);
+        }
+    }
+
     private void searchMovie() {
-        System.out.println("Enter name of a movie to search:");
+        out.println("Enter name of a movie to search:");
         String title = input.getStringFromUserInput();
         Movie movie = data.getMovieByTitle(title);
 
         if (movie == null) {
-            System.out.println("This movie doesn't exist");
+            out.println("This movie doesn't exist");
         } else {
-            System.out.println(movie);
+            out.println(movie);
         }
     }
 
     private void deleteMovie() {
-        System.out.println("Enter name of a movie to delete:");
+        out.println("Enter name of a movie to delete:");
         String title = input.getStringFromUserInput();
 
         if (data.removeMovie(title)) {
-            System.out.println("Movie was successfully deleted");
+            out.println("Movie was successfully deleted");
         } else {
-            System.out.println("This movie doesn't exist. Please try again...");
+            out.println("This movie doesn't exist. Please try again...");
         }
     }
 
     private void exit() {
-        System.out.println("Exiting program");
+        out.println("Exiting program");
         end = true;
         data.saveDatabase();
+    }
+
+    private Person getPersonFromUser() {
+        out.println("Enter name (without surname) of a staff member to add:");
+        String name = input.getStringFromUserInput();
+        out.println("Enter surname of a staff member to add:");
+        String surname = input.getStringFromUserInput();
+
+        return new Person(name, surname);
     }
 
     private void addMovie() {
@@ -121,18 +244,18 @@ public class UserControl {
         int year, age;
         Movie movie;
 
-        System.out.println("Enter movie title:");
+        out.println("Enter movie title:");
         title = input.getStringFromUserInput();
 
-        System.out.println("Enter movie director:");
+        out.println("Enter movie director:");
         director = input.getStringFromUserInput();
 
-        System.out.println("Enter movie release year:");
+        out.println("Enter movie release year:");
         year = input.getIntFromUserInput();
 
-        System.out.println("Is this movie animated? ([Y]es/[N]o):");
+        out.println("Is this movie animated? ([Y]es/[N]o):");
         if (input.getStringFromUserInput().equals("Y")) {
-            System.out.println("Enter recommended age:");
+            out.println("Enter recommended age:");
             age = input.getIntFromUserInput();
             movie = new AnimatedMovie(title, director, year, age);
         } else {
@@ -140,10 +263,10 @@ public class UserControl {
         }
 
         if (data.addMovie(movie)) {
-            System.out.println("Added movie: ");
-            System.out.println(movie);
+            out.println("Added movie: ");
+            out.println(movie);
         } else {
-            System.out.println("Movie with this title already exists. Please try again...");
+            out.println("Movie with this title already exists. Please try again...");
         }
     }
 }

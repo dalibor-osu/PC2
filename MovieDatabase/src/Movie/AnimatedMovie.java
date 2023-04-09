@@ -11,6 +11,15 @@ public class AnimatedMovie extends Movie{
         return age;
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public boolean isAnimated() {
+        return true;
+    }
+
     @Override
     public String toString() {
         return super.toString() + "\n\tAge: " + age;

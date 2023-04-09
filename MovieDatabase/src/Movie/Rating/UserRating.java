@@ -1,4 +1,4 @@
-package Movie;
+package Movie.Rating;
 
 public abstract class UserRating {
     protected String id;
