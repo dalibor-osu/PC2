@@ -2,6 +2,9 @@ package UserControl;
 
 import Database.DataContainer;
 import Movie.*;
+import Movie.Rating.AnimatedMovieRating;
+import Movie.Rating.FeatureMovieRating;
+import Movie.Rating.UserRating;
 
 import java.util.List;
 
@@ -22,56 +25,49 @@ public class UserControl {
 
     private void handleMenuSelection(int selection) {
         switch (selection) {
-            case 1:
-                addMovie();
-                break;
-
-            case 2:
-                editMovie();
-                break;
-
-            case 3:
-                deleteMovie();
-                break;
-
-            case 4:
-                out.println("Adding a movie rating");
-                break;
-
-            case 5:
-                searchMovie();
-                break;
-
-            case 6:
-                data.printMovies();
-                break;
-
-            case 7:
-                data.printStaffMembersWithMovies();
-                break;
-
-            case 8:
-                printMoviesWithPerson();
-                break;
-
-            case 9:
-                out.println("Saving movie to file");
-                break;
-
-            case 10:
-                out.println("Loading movie from file");
-                break;
-
-            case 11:
-                exit();
-                break;
-
-            default:
-                out.println("Unknown command. Please try again...");
-                break;
+            case 1 -> addMovie();
+            case 2 -> editMovie();
+            case 3 -> deleteMovie();
+            case 4 -> addUserRating();
+            case 5 -> searchMovie();
+            case 6 -> data.printMovies();
+            case 7 -> data.printStaffMembersWithMovies();
+            case 8 -> printMoviesWithPerson();
+            case 9 -> out.println("Saving movie to file");
+            case 10 -> out.println("Loading movie from file");
+            case 11 -> exit();
+            default -> out.println("Unknown command. Please try again...");
         }
 
         if (!end) { Menu(); }
+    }
+
+    private void addUserRating() {
+        Movie movie = getMovieFromUser(" to add the rating to");
+        UserRating rating = getUserRating(movie);
+        data.addRating(rating);
+    }
+
+    private UserRating getUserRating(Movie movie) {
+        out.println("Enter your rating (" + (movie.isAnimated() ? "1 - 10" : "1 - 5") + "):");
+        int points = input.getIntFromUserInput();
+
+        out.println("Enter your comment (or leave blank):");
+        String comment = input.getStringFromUserInput();
+        UserRating rating;
+
+        try {
+            if (movie.isAnimated()) {
+                rating = new AnimatedMovieRating(movie.getId(), points, comment);
+            } else {
+                rating = new FeatureMovieRating(movie.getId(), points, comment);
+            }
+
+            return rating;
+        } catch (Exception e) {
+            out.println(e.getMessage());
+            return getUserRating(movie);
+        }
     }
 
     private void printMoviesWithPerson() {
@@ -80,12 +76,7 @@ public class UserControl {
     }
 
     private void editMovie() {
-        String movieName;
-        Movie movie;
-
-        out.println("Enter the name of a movie to edit:");
-        movieName = input.getStringFromUserInput();
-        movie = data.getMovieByTitle(movieName);
+        Movie movie = getMovieFromUser(" to edit");
 
         if (movie == null) {
             out.println("This movie doesn't exists");
@@ -205,11 +196,20 @@ public class UserControl {
         out.println("Enter name of a movie to search:");
         String title = input.getStringFromUserInput();
         Movie movie = data.getMovieByTitle(title);
+        List<UserRating> ratings;
 
         if (movie == null) {
             out.println("This movie doesn't exist");
         } else {
+            ratings = data.getRatingsForMovie(movie.getId());
             out.println(movie);
+
+            if (ratings.size() > 0) {
+                out.println("\n\tRatings:");
+                for (UserRating rating : ratings) {
+                    out.println(rating);
+                }
+            }
         }
     }
 
@@ -237,6 +237,12 @@ public class UserControl {
         String surname = input.getStringFromUserInput();
 
         return new Person(name, surname);
+    }
+
+    private Movie getMovieFromUser(String action) {
+        out.println("Enter name of a movie" + action + ":");
+        String movieName = input.getStringFromUserInput();
+        return data.getMovieByTitle(movieName);
     }
 
     private void addMovie() {

@@ -21,8 +21,8 @@ public class DatabaseHandler {
                                                         "Age INT NOT NULL DEFAULT -1" +
                                                     ");";
     private final String createRatingTableQuery =   "CREATE TABLE IF NOT EXISTS Rating(" +
-                                                        "ID CHAR(36) PRIMARY KEY NOT NULL," +
-                                                        "ID_Movie CHAR(36) NOT NULL," +
+                                                        "ID VARCHAR(36) PRIMARY KEY NOT NULL," +
+                                                        "ID_Movie VARCHAR(36) NOT NULL," +
                                                         "Points INT NOT NULL," +
                                                         "Comment VARCHAR(1000) DEFAULT NULL," +
                                                         "CONSTRAINT ID_Movie_Rating_Constr FOREIGN KEY(ID_Movie) REFERENCES Movie(ID)" +
@@ -49,7 +49,6 @@ public class DatabaseHandler {
     }
 
     private void createTables() {
-        //dropTables();
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(createMovieTableQuery);
@@ -118,18 +117,21 @@ public class DatabaseHandler {
 
                 if (isAnimated) {
                     rating = new AnimatedMovieRating(
-                            result.getString("ID"),
-                            result.getInt("Rating")
+                            result.getString("ID_Movie"),
+                            result.getInt("Points")
                     );
                 } else {
                     rating = new FeatureMovieRating(
-                            result.getString("ID"),
-                            result.getInt("Rating")
+                            result.getString("ID_Movie"),
+                            result.getInt("Points")
                     );
                 }
 
+                rating.setId(result.getString("ID"));
+
                 String text = result.getString("Comment");
                 if (!text.isEmpty()) rating.setTextReview(text);
+
                 ratings.add(rating);
             }
 
@@ -141,9 +143,28 @@ public class DatabaseHandler {
     }
 
     public void saveDatabase(List<Movie> movies, List<UserRating> ratings) {
-        dropTables();
-        createTables();
+        resetTables();
         saveMovies(movies);
+        saveRatings(ratings);
+    }
+
+    private void saveRatings(List<UserRating> ratings) {
+        for (UserRating rating : ratings) {
+            try {
+                String query = rating.hasTextReview() ? "INSERT INTO Rating(ID, ID_Movie, Points, Comment) VALUES(?, ?, ?, ?)"
+                                                      : "INSERT INTO Rating(ID, ID_Movie, Points) VALUES(?, ?, ?)";
+                PreparedStatement statement = connection.prepareStatement(query);
+
+                statement.setString(1, rating.getId());
+                statement.setString(2, rating.getMovieId());
+                statement.setInt(3, rating.getRating());
+                if (rating.hasTextReview()) statement.setString(4, rating.getTextReview());
+
+                statement.executeUpdate();
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
     }
 
     private void saveMovies(List<Movie> movies) {
@@ -151,7 +172,7 @@ public class DatabaseHandler {
             try {
                 boolean isAnimated = movie instanceof AnimatedMovie;
                 String query = !isAnimated ? "INSERT INTO Movie(ID, Title, Director, Year, Staff) VALUES(?, ?, ?, ?, ?)"
-                                          : "INSERT INTO Movie(ID, Title, Director, Year, Staff, Age) VALUES(?, ?, ?, ?, ?, ?)";
+                                           : "INSERT INTO Movie(ID, Title, Director, Year, Staff, Age) VALUES(?, ?, ?, ?, ?, ?)";
                 PreparedStatement statement = connection.prepareStatement(query);
 
                 statement.setString(1, movie.getId());
@@ -194,6 +215,16 @@ public class DatabaseHandler {
         }
 
         return staff;
+    }
+
+    private void resetTables() {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("DELETE FROM Movie");
+            statement.executeUpdate("DELETE FROM Rating");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void dropTables() {

@@ -9,20 +9,20 @@ import java.util.Random;
 
 public class DataContainer {
     private List<Movie> movies;
-    private List<UserRating> userRatings;
+    private List<UserRating> ratings;
     private DatabaseHandler databaseHandler;
     public DataContainer() {
         databaseHandler = new DatabaseHandler();
         movies = databaseHandler.getMovieList();
-        userRatings = databaseHandler.getRatingList();
+        ratings = databaseHandler.getRatingList();
     }
 
     public List<Movie> getMovies() {
         return movies;
     }
 
-    public List<UserRating> getUserRatings() {
-        return userRatings;
+    public List<UserRating> getRatings() {
+        return ratings;
     }
 
     public boolean addMovie(Movie movie) {
@@ -31,13 +31,25 @@ public class DataContainer {
         }
 
         try {
-            movie.setId(generateID());
+            movie.setId(generateMovieId());
         } catch (MovieException e) {
             System.out.println(e.getMessage());
             return false;
         }
 
         movies.add(movie);
+        return true;
+    }
+    
+    public boolean addRating(UserRating rating) {
+        try {
+            rating.setId(generateRatingId());
+        } catch (MovieException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+        ratings.add(rating);
         return true;
     }
 
@@ -49,12 +61,31 @@ public class DataContainer {
         return movies.stream().filter(movie -> movie.getId().equals(movieId)).findAny().orElse(null);
     }
 
+    public UserRating getRatingById(String ratingId) {
+        return ratings.stream().filter(rating -> rating.getId().equals(ratingId)).findAny().orElse(null);
+    }
+
     public void saveDatabase() {
-        databaseHandler.saveDatabase(movies, userRatings);
+        databaseHandler.saveDatabase(movies, ratings);
     }
 
     public boolean removeMovie(String movieName) {
-        return movies.remove(getMovieByTitle(movieName));
+        Movie movie = getMovieByTitle(movieName);
+
+        if (movie == null) {
+            return false;
+        }
+
+        for (UserRating rating : getRatingsForMovie(movieName)) {
+            ratings.remove(rating);
+        }
+
+        return true;
+    }
+
+    public List<UserRating> getRatingsForMovie(String movieId) {
+        UserRating userRating = ratings.stream().filter(rating -> rating.getMovieId().equals(movieId)).findAny().orElse(null);
+        return ratings.stream().filter(rating -> rating.getMovieId().equals(movieId)).toList();
     }
 
     public void printMovies() {
@@ -143,15 +174,20 @@ public class DataContainer {
                 .orElse(null);
     }
 
-    private String generateID() {
+    private String generateMovieId() {
         char[] characters = "abcdefghijklmnopqrstuvwxyz123456789".toCharArray();
         Random random = new Random();
-        StringBuilder ID = new StringBuilder();
+        StringBuilder id = new StringBuilder();
 
         for (int i = 0; i < 36; i++) {
-            ID.append(characters[random.nextInt(35)]);
+            id.append(characters[random.nextInt(35)]);
         }
 
-        return getMovieById(ID.toString()) == null ? ID.toString() : generateID();
+        return getMovieById(id.toString()) == null ? id.toString() : generateMovieId();
+    }
+
+    private String generateRatingId() {
+        String id = generateMovieId();
+        return getRatingById(id) == null ? id : generateRatingId();
     }
 }

@@ -1,32 +1,24 @@
 package Movie.Rating;
 
+import Movie.MovieException;
+
 public abstract class UserRating {
-    protected String id;
+    protected String id = "";
+    protected String movieId;
     protected int rating;
-    protected String textReview;
+    protected String textReview = null;
     protected int minRating;
     protected int maxRating;
 
-    protected UserRating(String id, int rating, String textReview) {
-        this.rating = rating;
-        this.id = id;
-        this.textReview = textReview;
-    }
-
-    protected UserRating(String id, int rating) {
-        this.rating = rating;
-        this.id = id;
-        textReview = "";
-    }
-
-    protected UserRating(int rating, String textReview) {
+    protected UserRating(String movieId, int rating, String textReview) {
         this.rating = rating;
         this.textReview = textReview;
+        this.movieId = movieId;
     }
 
-    protected UserRating(int rating) {
+    protected UserRating(String movieId, int rating) {
         this.rating = rating;
-        textReview = "";
+        this.movieId = movieId;
     }
 
     public boolean hasTextReview() {
@@ -53,8 +45,20 @@ public abstract class UserRating {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(String id) throws MovieException {
+        if (!this.id.isEmpty()) {
+            throw new MovieException("ID is already set");
+        }
+
         this.id = id;
+    }
+
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
     }
 
     protected boolean checkIfValid(){
@@ -64,5 +68,10 @@ public abstract class UserRating {
     protected void setMinMaxRating(int minRating, int maxRating) {
         this.minRating = minRating;
         this.maxRating = maxRating;
+    }
+
+    @Override
+    public String toString() {
+        return id + "\n\tRating: " + rating + (textReview == null ? "" : "\n\tComment:" + "\n\t\t" + textReview);
     }
 }
