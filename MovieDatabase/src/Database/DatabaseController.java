@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHandler {
+public class DatabaseController {
     private Connection connection;
 
     private final String createMovieTableQuery =    "CREATE TABLE IF NOT EXISTS Movie(" +
@@ -28,7 +28,7 @@ public class DatabaseHandler {
                                                         "CONSTRAINT ID_Movie_Rating_Constr FOREIGN KEY(ID_Movie) REFERENCES Movie(ID)" +
                                                     ");";
 
-    public DatabaseHandler() {
+    public DatabaseController() {
         createConnection();
         createTables();
     }
@@ -36,7 +36,7 @@ public class DatabaseHandler {
     private void createConnection() {
         if (connection != null) return;
 
-        synchronized (DatabaseHandler.class) {
+        synchronized (DatabaseController.class) {
             if (connection != null) return;
 
             try {
@@ -222,16 +222,6 @@ public class DatabaseHandler {
             Statement statement = connection.createStatement();
             statement.executeUpdate("DELETE FROM Movie");
             statement.executeUpdate("DELETE FROM Rating");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void dropTables() {
-        try {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("drop table if exists Movie");
-            statement.executeUpdate("drop table if exists Rating");
         } catch (Exception e) {
             e.printStackTrace();
         }

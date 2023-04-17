@@ -82,7 +82,7 @@ public class UserControl {
                 .collect(Collectors.toList());
     }
 
-    private boolean loadSingeMovieFromFile(String path) {
+    private void loadSingeMovieFromFile(String path) {
         Movie movie;
 
         try {
@@ -106,7 +106,6 @@ public class UserControl {
             if (data.addMovie(movie, movieId)) {
                 out.println("Successfully added movie:");
                 out.println(movie);
-                return true;
             } else {
                 out.println("This movie already exists in database.");
             }
@@ -115,8 +114,6 @@ public class UserControl {
         } catch (Exception e) {
             out.println("Failed to load movie from file " + path);
         }
-
-        return false;
     }
 
     private void saveMovieToFile() {

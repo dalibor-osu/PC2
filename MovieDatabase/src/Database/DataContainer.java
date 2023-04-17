@@ -10,9 +10,9 @@ import java.util.Random;
 public class DataContainer {
     private List<Movie> movies;
     private List<UserRating> ratings;
-    private DatabaseHandler databaseHandler;
+    private DatabaseController databaseHandler;
     public DataContainer() {
-        databaseHandler = new DatabaseHandler();
+        databaseHandler = new DatabaseController();
         movies = databaseHandler.getMovieList();
         ratings = databaseHandler.getRatingList();
     }
