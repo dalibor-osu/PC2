@@ -14,8 +14,9 @@ public abstract class MenuPrinter {
         out.println("\t7 ... Print staff members who worked on more than 1 movie"); // done
         out.println("\t8 ... Print movies with certain staff member"); // done
         out.println("\t9 ... Save movie info to file"); // done
-        out.println("\t10... Load movie from file"); // done
-        out.println("\t11... Exit program"); // done
+        out.println("\t10... Save all movies to directory"); // done
+        out.println("\t11... Load movie from file"); // done
+        out.println("\t12... Exit program"); // done
     }
 
     public static void printEditMenu() {

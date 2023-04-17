@@ -7,12 +7,15 @@ import Movie.Rating.FeatureMovieRating;
 import Movie.Rating.UserRating;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.System.*;
 
@@ -40,8 +43,9 @@ public class UserControl {
             case 7 -> data.printStaffMembersWithMovies();
             case 8 -> printMoviesWithPerson();
             case 9 -> saveMovieToFile();
-            case 10 -> loadMovieFromFile();
-            case 11 -> exit();
+            case 10 -> saveAllMoviesToDirectory();
+            case 11 -> loadMovieFromFile();
+            case 12 -> exit();
             default -> out.println("Unknown command. Please try again...");
         }
 
@@ -51,6 +55,34 @@ public class UserControl {
     private void loadMovieFromFile() {
         out.println("Enter file path:");
         String path = input.getStringFromUserInput();
+
+        if (path.length() < 1) {
+            return;
+        }
+
+        if (path.toCharArray()[path.length() - 1] == '/') {
+            loadMoviesFromDirectory(path);
+        } else {
+            loadSingeMovieFromFile(path);
+        }
+    }
+
+    private void loadMoviesFromDirectory(String path) {
+        List<String> files = listFilesUsingJavaIO(path);
+        for (String file : files) {
+            loadSingeMovieFromFile(path + file);
+        }
+    }
+
+    private List<String> listFilesUsingJavaIO(String dir) {
+        return Stream.of(new File(dir).listFiles())
+                .filter(file -> !file.isDirectory())
+                .map(File::getName)
+                .filter(name -> name.contains(".txt"))
+                .collect(Collectors.toList());
+    }
+
+    private boolean loadSingeMovieFromFile(String path) {
         Movie movie;
 
         try {
@@ -74,15 +106,17 @@ public class UserControl {
             if (data.addMovie(movie, movieId)) {
                 out.println("Successfully added movie:");
                 out.println(movie);
+                return true;
             } else {
                 out.println("This movie already exists in database.");
             }
         } catch (MovieException e) {
-            out.println(e.getMessage());
+            out.println(e.getMessage() + ", File: " + path);
+        } catch (Exception e) {
+            out.println("Failed to load movie from file " + path);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        return false;
     }
 
     private void saveMovieToFile() {
@@ -90,6 +124,28 @@ public class UserControl {
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("./" + movie.getTitle() + ".txt"));
+            writer.write(movie.toString());
+            if (!movie.isAnimated()) {
+                writer.write("\n\tAge: -1");
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveAllMoviesToDirectory() {
+        out.println("Enter folder path:");
+        String path = input.getStringFromUserInput();
+
+        for (Movie movie : data.getMovies()) {
+            saveMovieToFile(path, movie);
+        }
+    }
+
+    private void saveMovieToFile(String path, Movie movie) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(path + movie.getTitle() + ".txt"));
             writer.write(movie.toString());
             if (!movie.isAnimated()) {
                 writer.write("\n\tAge: -1");
