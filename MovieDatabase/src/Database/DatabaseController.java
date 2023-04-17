@@ -12,22 +12,6 @@ import java.util.List;
 public class DatabaseController {
     private Connection connection;
 
-    private final String createMovieTableQuery =    "CREATE TABLE IF NOT EXISTS Movie(" +
-                                                        "ID CHAR(36) PRIMARY KEY NOT NULL," +
-                                                        "Title VARCHAR(255) NOT NULL," +
-                                                        "Director VARCHAR(255) NOT NULL," +
-                                                        "Year INT NOT NULL," +
-                                                        "Staff VARCHAR(1000)," +
-                                                        "Age INT NOT NULL DEFAULT -1" +
-                                                    ");";
-    private final String createRatingTableQuery =   "CREATE TABLE IF NOT EXISTS Rating(" +
-                                                        "ID VARCHAR(36) PRIMARY KEY NOT NULL," +
-                                                        "ID_Movie VARCHAR(36) NOT NULL," +
-                                                        "Points INT NOT NULL," +
-                                                        "Comment VARCHAR(1000) DEFAULT NULL," +
-                                                        "CONSTRAINT ID_Movie_Rating_Constr FOREIGN KEY(ID_Movie) REFERENCES Movie(ID)" +
-                                                    ");";
-
     public DatabaseController() {
         createConnection();
         createTables();
@@ -51,8 +35,8 @@ public class DatabaseController {
     private void createTables() {
         try {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(createMovieTableQuery);
-            statement.executeUpdate(createRatingTableQuery);
+            statement.executeUpdate(TableQueries.CreateMovieTableQuery);
+            statement.executeUpdate(TableQueries.CreateRatingTableQuery);
         } catch (Exception e) {
             e.printStackTrace();
         }
