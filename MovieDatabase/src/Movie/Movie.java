@@ -69,7 +69,7 @@ public abstract class Movie {
     }
 
     private String getPrintableStaffString() {
-        String staffType = isAnimated() ? "Animators" : "Actors";
+        String staffType = isAnimated() ? "Animators:" : "Actors:";
 
         if (staff.size() == 0) {
             return "\n\t" + staffType + ": No " + staffType + " set";

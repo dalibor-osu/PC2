@@ -40,6 +40,22 @@ public class DataContainer {
         movies.add(movie);
         return true;
     }
+
+    public boolean addMovie(Movie movie, String id) {
+        if (movieExists(movie.getTitle())) {
+            return false;
+        }
+
+        try {
+            movie.setId(id);
+        } catch (MovieException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+        movies.add(movie);
+        return true;
+    }
     
     public boolean addRating(UserRating rating) {
         try {
@@ -52,6 +68,7 @@ public class DataContainer {
         ratings.add(rating);
         return true;
     }
+
 
     public Movie getMovieByTitle(String movieTitle) {
         return movies.stream().filter(movie -> movie.getTitle().equals(movieTitle)).findAny().orElse(null);
@@ -76,15 +93,16 @@ public class DataContainer {
             return false;
         }
 
-        for (UserRating rating : getRatingsForMovie(movieName)) {
+        List<UserRating> userRatings = getRatingsForMovie(movie.getId());
+        for (UserRating rating : userRatings) {
             ratings.remove(rating);
         }
 
+        movies.remove(movie);
         return true;
     }
 
     public List<UserRating> getRatingsForMovie(String movieId) {
-        UserRating userRating = ratings.stream().filter(rating -> rating.getMovieId().equals(movieId)).findAny().orElse(null);
         return ratings.stream().filter(rating -> rating.getMovieId().equals(movieId)).toList();
     }
 

@@ -6,6 +6,12 @@ import Movie.Rating.AnimatedMovieRating;
 import Movie.Rating.FeatureMovieRating;
 import Movie.Rating.UserRating;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static java.lang.System.*;
@@ -33,13 +39,65 @@ public class UserControl {
             case 6 -> data.printMovies();
             case 7 -> data.printStaffMembersWithMovies();
             case 8 -> printMoviesWithPerson();
-            case 9 -> out.println("Saving movie to file");
-            case 10 -> out.println("Loading movie from file");
+            case 9 -> saveMovieToFile();
+            case 10 -> loadMovieFromFile();
             case 11 -> exit();
             default -> out.println("Unknown command. Please try again...");
         }
 
         if (!end) { Menu(); }
+    }
+
+    private void loadMovieFromFile() {
+        out.println("Enter file path:");
+        String path = input.getStringFromUserInput();
+        Movie movie;
+
+        try {
+            List<String> lines = Files.readAllLines(Path.of(path), StandardCharsets.UTF_8);
+            checkIfValidFile(lines);
+            String movieTitle = lines.get(0);
+            String movieId = lines.get(1).trim().split(": ")[1];
+            String movieDirector = lines.get(2).trim().split(": ")[1];
+            int movieYear = Integer.parseInt(lines.get(3).trim().split(": ")[1]);
+            int age = Integer.parseInt(lines.get(lines.size() - 1).trim().split(": ")[1]);
+
+            movie = age < 0 ? new FeatureMovie(movieTitle, movieDirector, movieYear) : new AnimatedMovie(movieTitle, movieDirector, movieYear, age);
+
+            if (!lines.get(4).contains("No")) {
+                for (int i = 5; i < lines.size() - 1; i++) {
+                    String[] name = lines.get(i).trim().split(" ");
+                    movie.getStaff().add(new Person(name[0], name[1]));
+                }
+            }
+
+            if (data.addMovie(movie, movieId)) {
+                out.println("Successfully added movie:");
+                out.println(movie);
+            } else {
+                out.println("This movie already exists in database.");
+            }
+        } catch (MovieException e) {
+            out.println(e.getMessage());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveMovieToFile() {
+        Movie movie = getMovieFromUser(" to save");
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("./" + movie.getTitle() + ".txt"));
+            writer.write(movie.toString());
+            if (!movie.isAnimated()) {
+                writer.write("\n\tAge: -1");
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addUserRating() {
@@ -239,12 +297,6 @@ public class UserControl {
         return new Person(name, surname);
     }
 
-    private Movie getMovieFromUser(String action) {
-        out.println("Enter name of a movie" + action + ":");
-        String movieName = input.getStringFromUserInput();
-        return data.getMovieByTitle(movieName);
-    }
-
     private void addMovie() {
         String title, director;
         int year, age;
@@ -273,6 +325,65 @@ public class UserControl {
             out.println(movie);
         } else {
             out.println("Movie with this title already exists. Please try again...");
+        }
+    }
+
+    private Movie getMovieFromUser(String action) {
+        out.println("Enter name of a movie" + action + ":");
+        String movieName = input.getStringFromUserInput();
+        return data.getMovieByTitle(movieName);
+    }
+
+    private void checkIfValidFile(List<String> lines) throws MovieException {
+        String line = lines.get(1);
+        boolean valid = true;
+        String exceptionMessage = "";
+
+        if (!line.contains("ID") || line.split(": ").length != 2 || line.split(": ")[1].length() != 36) {
+            valid = false;
+            exceptionMessage += "ID";
+        }
+
+        line = lines.get(2);
+        if (!line.contains("Director") || line.split(": ").length != 2) {
+            valid = false;
+            exceptionMessage += (exceptionMessage.isEmpty() ? "" : ", ") + "Director";
+        }
+
+        line = lines.get(3);
+        if (!line.contains("Year") || line.split(": ").length != 2) {
+            valid = false;
+            exceptionMessage += (exceptionMessage.isEmpty() ? "" : ", ") + "Year";
+        } else {
+            try {
+                Integer.parseInt(line.trim().split(": ")[1]);
+            } catch (Exception e) {
+                valid = false;
+                exceptionMessage += (exceptionMessage.isEmpty() ? "" : ", ") + "Year";
+            }
+        }
+
+        line = lines.get(4);
+        if (!line.contains("Actors") && !line.contains("Animators")) {
+            valid = false;
+            exceptionMessage += (exceptionMessage.isEmpty() ? "" : ", ") + "Staff";
+        }
+
+        line = lines.get(lines.size() - 1);
+        if (!line.contains("Age") && line.split(": ").length != 2) {
+            valid = false;
+            exceptionMessage += (exceptionMessage.isEmpty() ? "" : ", ") + "Age";
+        } else {
+            try {
+                Integer.parseInt(line.trim().split(": ")[1]);
+            } catch (Exception e) {
+                valid = false;
+                exceptionMessage += (exceptionMessage.isEmpty() ? "" : ", ") + "Age";
+            }
+        }
+
+        if (!valid) {
+            throw new MovieException("File corrupted (" + exceptionMessage + ")");
         }
     }
 }
