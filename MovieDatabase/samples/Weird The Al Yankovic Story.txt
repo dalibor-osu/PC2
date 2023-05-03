@@ -1,0 +1,8 @@
+Weird The Al Yankovic Story
+	ID: 55cy38j3tgorz9nge1vt3ia21jqfzn8aqsot
+	Director: Eric Appel
+	Year: 2022
+	Actors:
+		Daniel Radcliffe
+		Rainn Wilson
+	Age: -1
